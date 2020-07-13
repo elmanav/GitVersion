@@ -9,11 +9,11 @@ namespace GitVersion.Configuration
 {
     public class ConfigProvider : IConfigProvider
     {
+        private readonly IConfigFileLocator configFileLocator;
+        private readonly IConfigInitWizard configInitWizard;
         private readonly IFileSystem fileSystem;
         private readonly ILog log;
-        private readonly IConfigFileLocator configFileLocator;
         private readonly IOptions<GitVersionOptions> options;
-        private readonly IConfigInitWizard configInitWizard;
 
         public ConfigProvider(IFileSystem fileSystem, ILog log, IConfigFileLocator configFileLocator, IOptions<GitVersionOptions> options, IConfigInitWizard configInitWizard)
         {
@@ -36,10 +36,15 @@ namespace GitVersion.Configuration
 
         public Config Provide(string workingDirectory, Config overrideConfig = null)
         {
-            return new ConfigurationBuilder()
-                   .Add(configFileLocator.ReadConfig(workingDirectory))
-                   .Add(overrideConfig ?? new Config())
-                   .Build();
+            var configurationBuilder = new ConfigurationBuilder()
+                .Add(configFileLocator.ReadConfig(workingDirectory));
+            if (overrideConfig != null)
+            {
+                configurationBuilder.Add(overrideConfig);
+            }
+
+            return configurationBuilder
+                .Build();
         }
 
         public void Init(string workingDirectory)

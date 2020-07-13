@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using GitVersion.VersionCalculation;
+using JetBrains.Annotations;
 using YamlDotNet.Serialization;
 
 namespace GitVersion.Model.Configuration
@@ -17,9 +18,11 @@ namespace GitVersion.Model.Configuration
         public DateTimeOffset? Before { get; set; }
 
         [YamlMember(Alias = "sha")]
-        public IEnumerable<string> ShAs { get; set; }
+        [NotNull]
+        public IEnumerable<string> ShAs { get; [UsedImplicitly] private set; }
 
-        public virtual bool IsEmpty => Before == null && ShAs == null;
+        [YamlIgnore]
+        public virtual bool IsEmpty => Before == null && !ShAs.Any();
 
         public virtual IEnumerable<IVersionFilter> ToFilters()
         {

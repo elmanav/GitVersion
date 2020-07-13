@@ -478,5 +478,21 @@ tag-prefix: custom-tag-prefix-from-yml";
 
             config.TagPrefix.ShouldBe("custom-tag-prefix-from-yml");
         }
+
+        [Test]
+        public void ShouldUseSpecifiedIgnoreCommitsInOverrideConfig()
+        {
+            var commits = new[]
+            {
+                "04746abe50c05e1d5de9cebe3ca380e893754c89", "65ea69af33b394c1cc2b216fa0b7bfc579ed0f73", "04dcf8d3798040b7b46f08184c750893155fbf14", "fdc2676df9b2551453c23806ba5eb37db0b48d43", "226084bdd51f3af1a0b8309c775a7f4d5ab4edc4"
+            };
+            string text = $@"
+ignore:
+  sha: [{string.Join(", ", commits)}]";
+            SetupConfigFileContent(text);
+            var config = configProvider.Provide(repoPath);
+            config.Ignore.ShAs.Count().ShouldBe(commits.Length);
+            config.Ignore.ShAs.ShouldBe(commits);
+        }
     }
 }
